@@ -1,0 +1,7 @@
+# El proyecto no necesita dependencias de terceros para ejecutarse:
+# los algoritmos son propios y los archivos DOT se escriben a mano.
+# Graphviz se usa como ejecutable externo (comando `dot`), no como paquete.
+
+# Dependencias de desarrollo
+pytest>=7.4
+ruff>=0.4
