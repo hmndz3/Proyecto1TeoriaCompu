@@ -1,0 +1,14 @@
+# Expresiones regulares de prueba, una por linea.
+# Las lineas vacias y las que empiezan con '#' se ignoran.
+# Epsilon se escribe con '~'.
+
+(b|b)*abb(a|b)*
+(a|b)*abb(a|b)*
+(a*|b*)+
+((a|b)*)?
+(a|~)b*
+a?b?c?
+(a|b)*a(a|b)(a|b)
+0?(1?)?0*
+a.b.c
+\(a\|b\)

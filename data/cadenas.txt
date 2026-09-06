@@ -1,0 +1,16 @@
+# Cadenas w a evaluar, una por linea.
+# Cada cadena se empareja con la expresion de la misma posicion en
+# expresiones.txt: la primera cadena con la primera expresion, y asi.
+# '~' representa la cadena vacia. Las lineas vacias y las que empiezan
+# con '#' se ignoran.
+
+babbaaaa
+abb
+aabba
+~
+bbb
+ac
+baa
+0100
+abc
+ab
