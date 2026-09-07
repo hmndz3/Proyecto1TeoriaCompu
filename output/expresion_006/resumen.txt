@@ -1,0 +1,78 @@
+==============================================================================
+EXPRESION REGULAR: a?b?c?
+==============================================================================
+
+1. ANALISIS DE LA EXPRESION
+------------------------------------------------------------------------------
+  Expresion original    : a?b?c?
+  Concatenacion explicita: a?.b?.c?
+  Notacion postfix       : a ? b ? . c ? .
+  Alfabeto               : {a, b, c}
+  (epsilon se escribe '~' y se muestra como 'ε')
+
+2. AUTOMATAS CONSTRUIDOS
+------------------------------------------------------------------------------
+  AFN (Thompson)                : 12 estados
+  AFD (subconjuntos)            : 4 estados
+  AFD preparado para minimizar  : 5 estados
+  AFD minimo (particiones)      : 5 estados
+  AFD minimo (tabla de pares)   : 5 estados
+  Se agrego un estado pozo para completar la funcion de transicion.
+
+3. CONSTRUCCION DE SUBCONJUNTOS
+------------------------------------------------------------------------------
+  A = {q0,q2,q3,q4,q6,q7,q8,q10,q11}  <- inicial, aceptacion
+  B = {q1,q3,q4,q6,q7,q8,q10,q11}  <- aceptacion
+  C = {q5,q7,q8,q10,q11}  <- aceptacion
+  D = {q9,q11}  <- aceptacion
+
+  Tabla de transiciones del AFD:
+     estado  a       b       c       
+  ->*A       B       C       D       
+    *B       -       C       D       
+    *C       -       -       D       
+    *D       -       -       -       
+
+4. MINIMIZACION POR REFINAMIENTO DE PARTICIONES
+------------------------------------------------------------------------------
+  P0 = {A,B,C,D}  {TRAMPA}
+  P1 = {A}  {B}  {C}  {D}  {TRAMPA}
+  Refinamientos aplicados: 1
+
+5. MINIMIZACION POR TABLA DE PARES DISTINGUIBLES
+------------------------------------------------------------------------------
+  Pares marcados inicialmente (4):
+    (A,TRAMPA)  uno es de aceptacion y el otro no
+    (B,TRAMPA)  uno es de aceptacion y el otro no
+    (C,TRAMPA)  uno es de aceptacion y el otro no
+    (D,TRAMPA)  uno es de aceptacion y el otro no
+  Pares marcados por propagacion (6):
+    (A,B)  iteracion 1, simbolo 'a': con 'a' van a (B,TRAMPA), que ya esta marcado
+    (A,C)  iteracion 1, simbolo 'a': con 'a' van a (B,TRAMPA), que ya esta marcado
+    (A,D)  iteracion 1, simbolo 'a': con 'a' van a (B,TRAMPA), que ya esta marcado
+    (B,C)  iteracion 1, simbolo 'b': con 'b' van a (C,TRAMPA), que ya esta marcado
+    (B,D)  iteracion 1, simbolo 'b': con 'b' van a (C,TRAMPA), que ya esta marcado
+    (C,D)  iteracion 1, simbolo 'c': con 'c' van a (D,TRAMPA), que ya esta marcado
+  Iteraciones con marcas nuevas: 1
+  Pares equivalentes finales (0):
+    ninguno: el AFD ya era minimo
+
+6. EQUIVALENCIA DE LOS DOS AFD MINIMOS
+------------------------------------------------------------------------------
+  Comprobacion formal por recorrido del producto de estados: EQUIVALENTES
+  Pares de estados explorados: 5
+  Cantidad de estados: 5 (particiones) y 5 (tabla de pares)
+
+7. SIMULACION
+------------------------------------------------------------------------------
+  Cadena w = ac
+    AFN                            si
+      traza: {q0,q2,q3,q4,q6,q7,q8,q10,q11} --a--> {q1,q3,q4,q6,q7,q8,q10,q11} --c--> {q9,q11}
+    AFD (subconjuntos)             si
+      traza: A --a--> B --c--> D
+    AFD minimo (particiones)       si
+      traza: {A} --a--> {B} --c--> {D}
+    AFD minimo (tabla de pares)    si
+      traza: {A} --a--> {B} --c--> {D}
+    Los cuatro automatas coinciden: si
+    w pertenece a L(r): si

@@ -1,0 +1,113 @@
+==============================================================================
+EXPRESION REGULAR: (a|b)*a(a|b)(a|b)
+==============================================================================
+
+1. ANALISIS DE LA EXPRESION
+------------------------------------------------------------------------------
+  Expresion original    : (a|b)*a(a|b)(a|b)
+  Concatenacion explicita: (a|b)*.a.(a|b).(a|b)
+  Notacion postfix       : a b | * a . a b | . a b | .
+  Alfabeto               : {a, b}
+  (epsilon se escribe '~' y se muestra como 'ε')
+
+2. AUTOMATAS CONSTRUIDOS
+------------------------------------------------------------------------------
+  AFN (Thompson)                : 22 estados
+  AFD (subconjuntos)            : 9 estados
+  AFD preparado para minimizar  : 9 estados
+  AFD minimo (particiones)      : 8 estados
+  AFD minimo (tabla de pares)   : 8 estados
+
+3. CONSTRUCCION DE SUBCONJUNTOS
+------------------------------------------------------------------------------
+  A = {q0,q2,q4,q6,q7,q8}  <- inicial
+  B = {q0,q1,q2,q4,q5,q7,q8,q9,q10,q12,q14}
+  C = {q0,q2,q3,q4,q5,q7,q8}
+  D = {q0,q1,q2,q4,q5,q7,q8,q9,q10,q11,q12,q14,q15,q16,q18,q20}
+  E = {q0,q2,q3,q4,q5,q7,q8,q13,q15,q16,q18,q20}
+  F = {q0,q1,q2,q4,q5,q7,q8,q9,q10,q11,q12,q14,q15,q16,q17,q18,q20,q21}  <- aceptacion
+  G = {q0,q2,q3,q4,q5,q7,q8,q13,q15,q16,q18,q19,q20,q21}  <- aceptacion
+  H = {q0,q1,q2,q4,q5,q7,q8,q9,q10,q12,q14,q17,q21}  <- aceptacion
+  I = {q0,q2,q3,q4,q5,q7,q8,q19,q21}  <- aceptacion
+
+  Tabla de transiciones del AFD:
+     estado  a       b       
+  -> A       B       C       
+     B       D       E       
+     C       B       C       
+     D       F       G       
+     E       H       I       
+    *F       F       G       
+    *G       H       I       
+    *H       D       E       
+    *I       B       C       
+
+4. MINIMIZACION POR REFINAMIENTO DE PARTICIONES
+------------------------------------------------------------------------------
+  P0 = {A,B,C,D,E}  {F,G,H,I}
+  P1 = {A,B,C}  {D,E}  {F,G}  {H,I}
+  P2 = {A,C}  {B}  {D}  {E}  {F}  {G}  {H}  {I}
+  Refinamientos aplicados: 2
+
+5. MINIMIZACION POR TABLA DE PARES DISTINGUIBLES
+------------------------------------------------------------------------------
+  Pares marcados inicialmente (20):
+    (A,F)  uno es de aceptacion y el otro no
+    (A,G)  uno es de aceptacion y el otro no
+    (A,H)  uno es de aceptacion y el otro no
+    (A,I)  uno es de aceptacion y el otro no
+    (B,F)  uno es de aceptacion y el otro no
+    (B,G)  uno es de aceptacion y el otro no
+    (B,H)  uno es de aceptacion y el otro no
+    (B,I)  uno es de aceptacion y el otro no
+    (C,F)  uno es de aceptacion y el otro no
+    (C,G)  uno es de aceptacion y el otro no
+    (C,H)  uno es de aceptacion y el otro no
+    (C,I)  uno es de aceptacion y el otro no
+    (D,F)  uno es de aceptacion y el otro no
+    (D,G)  uno es de aceptacion y el otro no
+    (D,H)  uno es de aceptacion y el otro no
+    (D,I)  uno es de aceptacion y el otro no
+    (E,F)  uno es de aceptacion y el otro no
+    (E,G)  uno es de aceptacion y el otro no
+    (E,H)  uno es de aceptacion y el otro no
+    (E,I)  uno es de aceptacion y el otro no
+  Pares marcados por propagacion (15):
+    (A,D)  iteracion 1, simbolo 'a': con 'a' van a (B,F), que ya esta marcado
+    (A,E)  iteracion 1, simbolo 'a': con 'a' van a (B,H), que ya esta marcado
+    (B,D)  iteracion 1, simbolo 'a': con 'a' van a (D,F), que ya esta marcado
+    (B,E)  iteracion 1, simbolo 'a': con 'a' van a (D,H), que ya esta marcado
+    (C,D)  iteracion 1, simbolo 'a': con 'a' van a (B,F), que ya esta marcado
+    (C,E)  iteracion 1, simbolo 'a': con 'a' van a (B,H), que ya esta marcado
+    (F,H)  iteracion 1, simbolo 'a': con 'a' van a (F,D), que ya esta marcado
+    (F,I)  iteracion 1, simbolo 'a': con 'a' van a (F,B), que ya esta marcado
+    (G,H)  iteracion 1, simbolo 'a': con 'a' van a (H,D), que ya esta marcado
+    (G,I)  iteracion 1, simbolo 'a': con 'a' van a (H,B), que ya esta marcado
+    (H,I)  iteracion 1, simbolo 'a': con 'a' van a (D,B), que ya esta marcado
+    (A,B)  iteracion 2, simbolo 'a': con 'a' van a (B,D), que ya esta marcado
+    (B,C)  iteracion 2, simbolo 'a': con 'a' van a (D,B), que ya esta marcado
+    (D,E)  iteracion 2, simbolo 'a': con 'a' van a (F,H), que ya esta marcado
+    (F,G)  iteracion 2, simbolo 'a': con 'a' van a (F,H), que ya esta marcado
+  Iteraciones con marcas nuevas: 2
+  Pares equivalentes finales (1):
+    (A,C)
+
+6. EQUIVALENCIA DE LOS DOS AFD MINIMOS
+------------------------------------------------------------------------------
+  Comprobacion formal por recorrido del producto de estados: EQUIVALENTES
+  Pares de estados explorados: 8
+  Cantidad de estados: 8 (particiones) y 8 (tabla de pares)
+
+7. SIMULACION
+------------------------------------------------------------------------------
+  Cadena w = baa
+    AFN                            no
+      traza: {q0,q2,q4,q6,q7,q8} --b--> {q0,q2,q3,q4,q5,q7,q8} --a--> {q0,q1,q2,q4,q5,q7,q8,q9,q10,q12,q14} --a--> {q0,q1,q2,q4,q5,q7,q8,q9,q10,q11,q12,q14,q15,q16,q18,q20}
+    AFD (subconjuntos)             no
+      traza: A --b--> C --a--> B --a--> D
+    AFD minimo (particiones)       no
+      traza: {A,C} --b--> {A,C} --a--> {B} --a--> {D}
+    AFD minimo (tabla de pares)    no
+      traza: {A,C} --b--> {A,C} --a--> {B} --a--> {D}
+    Los cuatro automatas coinciden: si
+    w pertenece a L(r): no

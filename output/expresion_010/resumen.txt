@@ -1,0 +1,97 @@
+==============================================================================
+EXPRESION REGULAR: \(a\|b\)
+==============================================================================
+
+1. ANALISIS DE LA EXPRESION
+------------------------------------------------------------------------------
+  Expresion original    : \(a\|b\)
+  Concatenacion explicita: \(.a.\|.b.\)
+  Notacion postfix       : \( a . \| . b . \) .
+  Alfabeto               : {(, ), a, b, |}
+  (epsilon se escribe '~' y se muestra como 'ε')
+
+2. AUTOMATAS CONSTRUIDOS
+------------------------------------------------------------------------------
+  AFN (Thompson)                : 10 estados
+  AFD (subconjuntos)            : 6 estados
+  AFD preparado para minimizar  : 7 estados
+  AFD minimo (particiones)      : 7 estados
+  AFD minimo (tabla de pares)   : 7 estados
+  Se agrego un estado pozo para completar la funcion de transicion.
+
+3. CONSTRUCCION DE SUBCONJUNTOS
+------------------------------------------------------------------------------
+  A = {q0}  <- inicial
+  B = {q1,q2}
+  C = {q3,q4}
+  D = {q5,q6}
+  E = {q7,q8}
+  F = {q9}  <- aceptacion
+
+  Tabla de transiciones del AFD:
+     estado  (       )       a       b       |       
+  -> A       B       -       -       -       -       
+     B       -       -       C       -       -       
+     C       -       -       -       -       D       
+     D       -       -       -       E       -       
+     E       -       F       -       -       -       
+    *F       -       -       -       -       -       
+
+4. MINIMIZACION POR REFINAMIENTO DE PARTICIONES
+------------------------------------------------------------------------------
+  P0 = {A,B,C,D,E,TRAMPA}  {F}
+  P1 = {A,B,C,D,TRAMPA}  {E}  {F}
+  P2 = {A,B,C,TRAMPA}  {D}  {E}  {F}
+  P3 = {A,B,TRAMPA}  {C}  {D}  {E}  {F}
+  P4 = {A,TRAMPA}  {B}  {C}  {D}  {E}  {F}
+  P5 = {A}  {B}  {C}  {D}  {E}  {F}  {TRAMPA}
+  Refinamientos aplicados: 5
+
+5. MINIMIZACION POR TABLA DE PARES DISTINGUIBLES
+------------------------------------------------------------------------------
+  Pares marcados inicialmente (6):
+    (A,F)  uno es de aceptacion y el otro no
+    (B,F)  uno es de aceptacion y el otro no
+    (C,F)  uno es de aceptacion y el otro no
+    (D,F)  uno es de aceptacion y el otro no
+    (E,F)  uno es de aceptacion y el otro no
+    (F,TRAMPA)  uno es de aceptacion y el otro no
+  Pares marcados por propagacion (15):
+    (A,E)  iteracion 1, simbolo ')': con ')' van a (TRAMPA,F), que ya esta marcado
+    (B,E)  iteracion 1, simbolo ')': con ')' van a (TRAMPA,F), que ya esta marcado
+    (C,E)  iteracion 1, simbolo ')': con ')' van a (TRAMPA,F), que ya esta marcado
+    (D,E)  iteracion 1, simbolo ')': con ')' van a (TRAMPA,F), que ya esta marcado
+    (E,TRAMPA)  iteracion 1, simbolo ')': con ')' van a (F,TRAMPA), que ya esta marcado
+    (A,D)  iteracion 2, simbolo 'b': con 'b' van a (TRAMPA,E), que ya esta marcado
+    (B,D)  iteracion 2, simbolo 'b': con 'b' van a (TRAMPA,E), que ya esta marcado
+    (C,D)  iteracion 2, simbolo 'b': con 'b' van a (TRAMPA,E), que ya esta marcado
+    (D,TRAMPA)  iteracion 2, simbolo 'b': con 'b' van a (E,TRAMPA), que ya esta marcado
+    (A,C)  iteracion 3, simbolo '|': con '|' van a (TRAMPA,D), que ya esta marcado
+    (B,C)  iteracion 3, simbolo '|': con '|' van a (TRAMPA,D), que ya esta marcado
+    (C,TRAMPA)  iteracion 3, simbolo '|': con '|' van a (D,TRAMPA), que ya esta marcado
+    (A,B)  iteracion 4, simbolo 'a': con 'a' van a (TRAMPA,C), que ya esta marcado
+    (B,TRAMPA)  iteracion 4, simbolo 'a': con 'a' van a (C,TRAMPA), que ya esta marcado
+    (A,TRAMPA)  iteracion 5, simbolo '(': con '(' van a (B,TRAMPA), que ya esta marcado
+  Iteraciones con marcas nuevas: 5
+  Pares equivalentes finales (0):
+    ninguno: el AFD ya era minimo
+
+6. EQUIVALENCIA DE LOS DOS AFD MINIMOS
+------------------------------------------------------------------------------
+  Comprobacion formal por recorrido del producto de estados: EQUIVALENTES
+  Pares de estados explorados: 7
+  Cantidad de estados: 7 (particiones) y 7 (tabla de pares)
+
+7. SIMULACION
+------------------------------------------------------------------------------
+  Cadena w = ab
+    AFN                            no
+      traza: {q0} --a--> {}
+    AFD (subconjuntos)             no
+      traza: A (sin consumir simbolos)
+    AFD minimo (particiones)       no
+      traza: {A} --a--> {TRAMPA} --b--> {TRAMPA}
+    AFD minimo (tabla de pares)    no
+      traza: {A} --a--> {TRAMPA} --b--> {TRAMPA}
+    Los cuatro automatas coinciden: si
+    w pertenece a L(r): no

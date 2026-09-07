@@ -1,0 +1,68 @@
+==============================================================================
+EXPRESION REGULAR: (a*|b*)+
+==============================================================================
+
+1. ANALISIS DE LA EXPRESION
+------------------------------------------------------------------------------
+  Expresion original    : (a*|b*)+
+  Concatenacion explicita: (a*|b*)+
+  Notacion postfix       : a * b * | +
+  Alfabeto               : {a, b}
+  (epsilon se escribe '~' y se muestra como 'ε')
+
+2. AUTOMATAS CONSTRUIDOS
+------------------------------------------------------------------------------
+  AFN (Thompson)                : 12 estados
+  AFD (subconjuntos)            : 3 estados
+  AFD preparado para minimizar  : 3 estados
+  AFD minimo (particiones)      : 1 estados
+  AFD minimo (tabla de pares)   : 1 estados
+
+3. CONSTRUCCION DE SUBCONJUNTOS
+------------------------------------------------------------------------------
+  A = {q0,q2,q3,q4,q6,q7,q8,q9,q10,q11}  <- inicial, aceptacion
+  B = {q0,q1,q2,q3,q4,q6,q7,q8,q9,q11}  <- aceptacion
+  C = {q0,q2,q3,q4,q5,q6,q7,q8,q9,q11}  <- aceptacion
+
+  Tabla de transiciones del AFD:
+     estado  a       b       
+  ->*A       B       C       
+    *B       B       C       
+    *C       B       C       
+
+4. MINIMIZACION POR REFINAMIENTO DE PARTICIONES
+------------------------------------------------------------------------------
+  P0 = {A,B,C}
+  Refinamientos aplicados: 0
+
+5. MINIMIZACION POR TABLA DE PARES DISTINGUIBLES
+------------------------------------------------------------------------------
+  Pares marcados inicialmente (0):
+    ninguno
+  Pares marcados por propagacion (0):
+    ninguno
+  Iteraciones con marcas nuevas: 0
+  Pares equivalentes finales (3):
+    (A,B)
+    (A,C)
+    (B,C)
+
+6. EQUIVALENCIA DE LOS DOS AFD MINIMOS
+------------------------------------------------------------------------------
+  Comprobacion formal por recorrido del producto de estados: EQUIVALENTES
+  Pares de estados explorados: 1
+  Cantidad de estados: 1 (particiones) y 1 (tabla de pares)
+
+7. SIMULACION
+------------------------------------------------------------------------------
+  Cadena w = aabba
+    AFN                            si
+      traza: {q0,q2,q3,q4,q6,q7,q8,q9,q10,q11} --a--> {q0,q1,q2,q3,q4,q6,q7,q8,q9,q11} --a--> {q0,q1,q2,q3,q4,q6,q7,q8,q9,q11} --b--> {q0,q2,q3,q4,q5,q6,q7,q8,q9,q11} --b--> {q0,q2,q3,q4,q5,q6,q7,q8,q9,q11} --a--> {q0,q1,q2,q3,q4,q6,q7,q8,q9,q11}
+    AFD (subconjuntos)             si
+      traza: A --a--> B --a--> B --b--> C --b--> C --a--> B
+    AFD minimo (particiones)       si
+      traza: {A,B,C} --a--> {A,B,C} --a--> {A,B,C} --b--> {A,B,C} --b--> {A,B,C} --a--> {A,B,C}
+    AFD minimo (tabla de pares)    si
+      traza: {A,B,C} --a--> {A,B,C} --a--> {A,B,C} --b--> {A,B,C} --b--> {A,B,C} --a--> {A,B,C}
+    Los cuatro automatas coinciden: si
+    w pertenece a L(r): si

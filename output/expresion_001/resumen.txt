@@ -1,0 +1,103 @@
+==============================================================================
+EXPRESION REGULAR: (b|b)*abb(a|b)*
+==============================================================================
+
+1. ANALISIS DE LA EXPRESION
+------------------------------------------------------------------------------
+  Expresion original    : (b|b)*abb(a|b)*
+  Concatenacion explicita: (b|b)*.a.b.b.(a|b)*
+  Notacion postfix       : b b | * a . b . b . a b | * .
+  Alfabeto               : {a, b}
+  (epsilon se escribe '~' y se muestra como 'ε')
+
+2. AUTOMATAS CONSTRUIDOS
+------------------------------------------------------------------------------
+  AFN (Thompson)                : 22 estados
+  AFD (subconjuntos)            : 7 estados
+  AFD preparado para minimizar  : 8 estados
+  AFD minimo (particiones)      : 5 estados
+  AFD minimo (tabla de pares)   : 5 estados
+  Se agrego un estado pozo para completar la funcion de transicion.
+
+3. CONSTRUCCION DE SUBCONJUNTOS
+------------------------------------------------------------------------------
+  A = {q0,q2,q4,q6,q7,q8}  <- inicial
+  B = {q9,q10}
+  C = {q0,q1,q2,q3,q4,q5,q7,q8}
+  D = {q11,q12}
+  E = {q13,q14,q16,q18,q20,q21}  <- aceptacion
+  F = {q14,q15,q16,q18,q19,q21}  <- aceptacion
+  G = {q14,q16,q17,q18,q19,q21}  <- aceptacion
+
+  Tabla de transiciones del AFD:
+     estado  a       b       
+  -> A       B       C       
+     B       -       D       
+     C       B       C       
+     D       -       E       
+    *E       F       G       
+    *F       F       G       
+    *G       F       G       
+
+4. MINIMIZACION POR REFINAMIENTO DE PARTICIONES
+------------------------------------------------------------------------------
+  P0 = {A,B,C,D,TRAMPA}  {E,F,G}
+  P1 = {A,B,C,TRAMPA}  {D}  {E,F,G}
+  P2 = {A,C,TRAMPA}  {B}  {D}  {E,F,G}
+  P3 = {A,C}  {B}  {D}  {E,F,G}  {TRAMPA}
+  Refinamientos aplicados: 3
+
+5. MINIMIZACION POR TABLA DE PARES DISTINGUIBLES
+------------------------------------------------------------------------------
+  Pares marcados inicialmente (15):
+    (A,E)  uno es de aceptacion y el otro no
+    (A,F)  uno es de aceptacion y el otro no
+    (A,G)  uno es de aceptacion y el otro no
+    (B,E)  uno es de aceptacion y el otro no
+    (B,F)  uno es de aceptacion y el otro no
+    (B,G)  uno es de aceptacion y el otro no
+    (C,E)  uno es de aceptacion y el otro no
+    (C,F)  uno es de aceptacion y el otro no
+    (C,G)  uno es de aceptacion y el otro no
+    (D,E)  uno es de aceptacion y el otro no
+    (D,F)  uno es de aceptacion y el otro no
+    (D,G)  uno es de aceptacion y el otro no
+    (E,TRAMPA)  uno es de aceptacion y el otro no
+    (F,TRAMPA)  uno es de aceptacion y el otro no
+    (G,TRAMPA)  uno es de aceptacion y el otro no
+  Pares marcados por propagacion (9):
+    (A,D)  iteracion 1, simbolo 'b': con 'b' van a (C,E), que ya esta marcado
+    (B,D)  iteracion 1, simbolo 'b': con 'b' van a (D,E), que ya esta marcado
+    (C,D)  iteracion 1, simbolo 'b': con 'b' van a (C,E), que ya esta marcado
+    (D,TRAMPA)  iteracion 1, simbolo 'b': con 'b' van a (E,TRAMPA), que ya esta marcado
+    (A,B)  iteracion 2, simbolo 'b': con 'b' van a (C,D), que ya esta marcado
+    (B,C)  iteracion 2, simbolo 'b': con 'b' van a (D,C), que ya esta marcado
+    (B,TRAMPA)  iteracion 2, simbolo 'b': con 'b' van a (D,TRAMPA), que ya esta marcado
+    (C,TRAMPA)  iteracion 2, simbolo 'a': con 'a' van a (B,TRAMPA), que ya esta marcado
+    (A,TRAMPA)  iteracion 3, simbolo 'a': con 'a' van a (B,TRAMPA), que ya esta marcado
+  Iteraciones con marcas nuevas: 3
+  Pares equivalentes finales (4):
+    (A,C)
+    (E,F)
+    (E,G)
+    (F,G)
+
+6. EQUIVALENCIA DE LOS DOS AFD MINIMOS
+------------------------------------------------------------------------------
+  Comprobacion formal por recorrido del producto de estados: EQUIVALENTES
+  Pares de estados explorados: 5
+  Cantidad de estados: 5 (particiones) y 5 (tabla de pares)
+
+7. SIMULACION
+------------------------------------------------------------------------------
+  Cadena w = babbaaaa
+    AFN                            si
+      traza: {q0,q2,q4,q6,q7,q8} --b--> {q0,q1,q2,q3,q4,q5,q7,q8} --a--> {q9,q10} --b--> {q11,q12} --b--> {q13,q14,q16,q18,q20,q21} --a--> {q14,q15,q16,q18,q19,q21} --a--> {q14,q15,q16,q18,q19,q21} --a--> {q14,q15,q16,q18,q19,q21} --a--> {q14,q15,q16,q18,q19,q21}
+    AFD (subconjuntos)             si
+      traza: A --b--> C --a--> B --b--> D --b--> E --a--> F --a--> F --a--> F --a--> F
+    AFD minimo (particiones)       si
+      traza: {A,C} --b--> {A,C} --a--> {B} --b--> {D} --b--> {E,F,G} --a--> {E,F,G} --a--> {E,F,G} --a--> {E,F,G} --a--> {E,F,G}
+    AFD minimo (tabla de pares)    si
+      traza: {A,C} --b--> {A,C} --a--> {B} --b--> {D} --b--> {E,F,G} --a--> {E,F,G} --a--> {E,F,G} --a--> {E,F,G} --a--> {E,F,G}
+    Los cuatro automatas coinciden: si
+    w pertenece a L(r): si
