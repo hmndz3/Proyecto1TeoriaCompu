@@ -92,6 +92,24 @@ Windows hay que **cerrar y volver a abrir la terminal** después de instalarlo.
 Al arrancar, el programa imprime la versión detectada (`Graphviz detectado: dot
 - graphviz version ...`).
 
+**No hace falta que `dot` esté en el PATH.** El programa lo busca en este orden:
+
+1. La ruta que se le pase con `--dot`.
+2. La variable de entorno `GRAPHVIZ_DOT`.
+3. El PATH del proceso.
+4. Las carpetas de instalación habituales: `%LOCALAPPDATA%\Graphviz\...\bin`,
+   `%ProgramFiles%\Graphviz\bin`, `/usr/bin`, `/usr/local/bin`,
+   `/opt/homebrew/bin`.
+
+El cuarto paso resuelve un caso muy común en Windows: Graphviz está instalado y
+`dot -V` funciona en una terminal nueva, pero los programas abiertos desde el
+explorador (VS Code incluido) heredan el PATH que tenía el explorador al
+arrancar, así que no lo ven hasta cerrar sesión. Si aun así no aparece:
+
+```bash
+python main.py --dot "C:\Users\tu_usuario\AppData\Local\Graphviz\Graphviz-16.0.0-win64\bin\dot.exe"
+```
+
 **Graphviz no es obligatorio.** Si no está, el proyecto dibuja los autómatas con
 un generador de SVG propio, escrito en Python puro y sin dependencias: los `.svg`
 se abren en cualquier navegador y muestran lo mismo (estado inicial, doble
@@ -248,6 +266,7 @@ regex-automata
 | `--interactive`, `-i` | Pide las cadenas por teclado |
 | `--output`, `-o` | Carpeta raíz de las salidas (por defecto `output`) |
 | `--no-images` | No dibuja nada; deja solo los `.dot` |
+| `--dot` | Ruta al ejecutable `dot`, si no se encuentra solo |
 | `--svg` | Genera también el `.svg` propio aunque Graphviz funcione |
 | `--keep-dot` | Conserva los `.dot` además de las imágenes |
 | `--quiet`, `-q` | Imprime únicamente `si` o `no` |

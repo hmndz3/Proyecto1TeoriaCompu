@@ -36,6 +36,7 @@ from .services.output_writer import OutputReport, write_expression_outputs
 from .visualization.graphviz_renderer import (
     graphviz_version,
     installation_hint,
+    set_dot_executable,
 )
 
 _ANCHO = 78
@@ -129,6 +130,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="genera solo los archivos .dot, sin invocar a Graphviz",
     )
     parser.add_argument(
+        "--dot",
+        metavar="RUTA",
+        help=(
+            "ruta al ejecutable 'dot' de Graphviz, si no se encuentra solo "
+            "(tambien sirve la variable de entorno GRAPHVIZ_DOT)"
+        ),
+    )
+    parser.add_argument(
         "--svg",
         action="store_true",
         help=(
@@ -162,6 +171,9 @@ def main(argv: list[str] | None = None) -> int:
     """
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if args.dot:
+        set_dot_executable(args.dot)
 
     try:
         trabajos = _build_jobs(args)
