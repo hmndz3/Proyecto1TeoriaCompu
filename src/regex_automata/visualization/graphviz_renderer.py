@@ -11,6 +11,7 @@ en disco para no perder el automata.
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 from dataclasses import dataclass
@@ -18,6 +19,92 @@ from functools import lru_cache
 from pathlib import Path
 
 _TIMEOUT_SECONDS = 30
+
+#: Variable de entorno con la ruta al ejecutable, si se quiere forzar.
+_ENV_VAR = "GRAPHVIZ_DOT"
+
+#: Ruta indicada a mano desde la linea de comandos.
+_override: str | None = None
+
+
+def set_dot_executable(path: str | None) -> None:
+    """Fija la ruta del ejecutable ``dot`` y descarta la deteccion en cache."""
+    global _override
+    _override = path
+    find_dot.cache_clear()
+    is_graphviz_available.cache_clear()
+    graphviz_version.cache_clear()
+
+
+def _windows_candidates() -> list[Path]:
+    """Carpetas donde Graphviz suele quedar instalado en Windows."""
+    raices = [
+        os.environ.get("LOCALAPPDATA"),
+        os.environ.get("PROGRAMFILES"),
+        os.environ.get("PROGRAMFILES(X86)"),
+        os.environ.get("PROGRAMW6432"),
+    ]
+    encontrados: list[Path] = []
+    for raiz in raices:
+        if not raiz:
+            continue
+        base = Path(raiz) / "Graphviz"
+        if not base.is_dir():
+            continue
+        directo = base / "bin" / "dot.exe"
+        if directo.is_file():
+            encontrados.append(directo)
+        # La version portable se extrae en Graphviz/Graphviz-X.Y.Z-win64/bin.
+        for hijo in sorted(base.glob("*/bin/dot.exe")):
+            if hijo.is_file():
+                encontrados.append(hijo)
+    return encontrados
+
+
+def _unix_candidates() -> list[Path]:
+    """Rutas habituales en macOS y Linux."""
+    rutas = [
+        Path("/usr/bin/dot"),
+        Path("/usr/local/bin/dot"),
+        Path("/opt/homebrew/bin/dot"),
+        Path("/opt/local/bin/dot"),
+    ]
+    return [ruta for ruta in rutas if ruta.is_file()]
+
+
+@lru_cache(maxsize=1)
+def find_dot() -> str | None:
+    """Localiza el ejecutable ``dot``.
+
+    Se busca en este orden:
+
+    1. La ruta indicada con ``--dot``.
+    2. La variable de entorno ``GRAPHVIZ_DOT``.
+    3. El PATH del proceso.
+    4. Las carpetas de instalacion habituales de cada sistema.
+
+    El cuarto paso existe porque en Windows es comun que Graphviz este
+    instalado pero el PATH del proceso sea antiguo: los programas que se abren
+    desde el explorador heredan el entorno que este tenia al arrancar, asi que
+    el PATH nuevo no llega hasta cerrar la sesion.
+
+    Returns:
+        La ruta del ejecutable, o ``None`` si no aparece por ningun lado.
+    """
+    if _override:
+        return _override if Path(_override).is_file() else None
+
+    del_entorno = os.environ.get(_ENV_VAR)
+    if del_entorno and Path(del_entorno).is_file():
+        return del_entorno
+
+    en_path = shutil.which("dot")
+    if en_path:
+        return en_path
+
+    for candidato in (*_windows_candidates(), *_unix_candidates()):
+        return str(candidato)
+    return None
 
 
 @dataclass(frozen=True)
@@ -35,18 +122,19 @@ class RenderResult:
 
 @lru_cache(maxsize=1)
 def is_graphviz_available() -> bool:
-    """Indica si el comando ``dot`` esta disponible en el PATH."""
-    return shutil.which("dot") is not None
+    """Indica si se pudo localizar el ejecutable ``dot``."""
+    return find_dot() is not None
 
 
 @lru_cache(maxsize=1)
 def graphviz_version() -> str | None:
     """Devuelve la version reportada por ``dot -V``, o ``None`` si no responde."""
-    if not is_graphviz_available():
+    ejecutable = find_dot()
+    if ejecutable is None:
         return None
     try:
         proceso = subprocess.run(
-            ["dot", "-V"], capture_output=True, timeout=_TIMEOUT_SECONDS
+            [ejecutable, "-V"], capture_output=True, timeout=_TIMEOUT_SECONDS
         )
     except (subprocess.TimeoutExpired, OSError):
         return None
@@ -57,7 +145,8 @@ def graphviz_version() -> str | None:
 def installation_hint() -> str:
     """Instrucciones de instalacion de Graphviz para mostrar al usuario."""
     return (
-        "Graphviz no esta instalado, o el comando 'dot' no esta en el PATH.\n"
+        "No se encontro Graphviz ('dot') ni en el PATH ni en las carpetas\n"
+        "habituales de instalacion.\n"
         "  Windows : winget install graphviz\n"
         "            (o el instalador de https://graphviz.org/download/ marcando\n"
         "            'Add Graphviz to the system PATH'). Despues hay que CERRAR y\n"
@@ -65,6 +154,9 @@ def installation_hint() -> str:
         "  macOS   : brew install graphviz\n"
         "  Debian  : sudo apt install graphviz\n"
         "Compruebe la instalacion con:  dot -V\n"
+        "Si ya esta instalado, indique la ruta con --dot o con la variable de\n"
+        "entorno GRAPHVIZ_DOT, por ejemplo:\n"
+        "  python main.py --dot \"C:\\ruta\\a\\Graphviz\\bin\\dot.exe\"\n"
         "Mientras tanto se generan archivos .dot, que pueden verse en\n"
         "https://dreampuf.github.io/GraphvizOnline/"
     )
@@ -97,13 +189,16 @@ def render_image(
     Returns:
         Un :class:`RenderResult` con el exito y, si fallo, el motivo concreto.
     """
-    if not is_graphviz_available():
-        return RenderResult(False, "el comando 'dot' de Graphviz no esta en el PATH")
+    ejecutable = find_dot()
+    if ejecutable is None:
+        return RenderResult(
+            False, "no se encontro el ejecutable 'dot' de Graphviz en el sistema"
+        )
 
     image_path.parent.mkdir(parents=True, exist_ok=True)
     try:
         subprocess.run(
-            ["dot", f"-T{image_format}", "-o", str(image_path)],
+            [ejecutable, f"-T{image_format}", "-o", str(image_path)],
             input=dot_source.encode("utf-8"),
             check=True,
             capture_output=True,
